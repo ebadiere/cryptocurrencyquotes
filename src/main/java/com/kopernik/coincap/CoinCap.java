@@ -10,33 +10,15 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * Hello world!
- *
- */
 public class CoinCap
 {
     private static final String COINCAP_API = "http://coincap.io/page/ZEN";
 
-    public CryptoCurrencyQuote pollCoinBase(){
-        final CryptoCurrencyQuote[] cryptoCurrencyQuote = {null};
-
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            public void run()
-            {
-                cryptoCurrencyQuote[0] = queryCoinCap();
-            }
-        }, 0, 3000);
-
-        return cryptoCurrencyQuote[0];
-    }
-
     public CryptoCurrencyQuote queryCoinCap() {
-        String output = null;
         CryptoCurrencyQuote cryptoCurrencyQuote = null;
 
         try {
@@ -71,11 +53,19 @@ public class CoinCap
         return cryptoCurrencyQuote;
     }
 
-    public static void main( String[] args )
-    {
-        CoinCap coinCap = new CoinCap();
-        System.out.println("DEBUG: " + coinCap.pollCoinBase());
+    public Map<String, BigDecimal> getFiatConversion(){
 
+        Map<String, BigDecimal> fiatAmounts = new HashMap<>();
+        BigDecimal usdAmount;
+        BigDecimal eurAmount;
+
+        CryptoCurrencyQuote cryptoCurrencyQuote = queryCoinCap();
+        usdAmount = new BigDecimal(cryptoCurrencyQuote.getPrice()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        fiatAmounts.put("USD", usdAmount);
+        eurAmount = new BigDecimal(cryptoCurrencyQuote.getPrice()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        fiatAmounts.put("EUR", eurAmount);
+
+        return fiatAmounts;
     }
 
 }
